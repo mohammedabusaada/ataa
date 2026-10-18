@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Household extends Model
 {
     use SoftDeletes;
@@ -33,5 +35,15 @@ class Household extends Model
     public function registeredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'registered_by');
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(HouseholdDocument::class);
+    }
+
+    public function statusChanges(): HasMany
+    {
+        return $this->hasMany(HouseholdStatusChange::class);
     }
 }
