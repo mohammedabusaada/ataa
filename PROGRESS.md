@@ -39,6 +39,7 @@ Ataa is an aid distribution management system for NGOs and charities: household 
 
 - `attach` / `detach` / `sync` on `belongsToMany`: revisit with the household form's checkboxes.
 - `$household->flags` (loaded collection) vs `$household->flags()` (relationship object you can query or modify).
+- Mass assignment: why `$fillable` is a whitelist, and setting system-controlled columns explicitly (`associate()`). Revisit with Form Requests.
 
 ## Next step
 
