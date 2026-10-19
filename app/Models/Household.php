@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -45,5 +46,10 @@ class Household extends Model
     public function statusChanges(): HasMany
     {
         return $this->hasMany(HouseholdStatusChange::class);
+    }
+
+    public function vulnerabilityFlags(): BelongsToMany
+    {
+        return $this->belongsToMany(VulnerabilityFlag::class);
     }
 }
