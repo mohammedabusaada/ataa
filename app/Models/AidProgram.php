@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class AidProgram extends Model
 {
@@ -44,5 +46,15 @@ class AidProgram extends Model
     public function requiredFlags(): BelongsToMany
     {
         return $this->belongsToMany(VulnerabilityFlag::class);
+    }
+
+    public function distributionRounds(): HasMany
+    {
+        return $this->hasMany(DistributionRound::class);
+    }
+
+    public function allocations(): HasManyThrough
+    {
+        return $this->hasManyThrough(Allocation::class, DistributionRound::class);
     }
 }

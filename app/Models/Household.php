@@ -48,6 +48,11 @@ class Household extends Model
         return $this->hasMany(HouseholdStatusChange::class);
     }
 
+    public function allocations(): HasMany
+    {
+        return $this->hasMany(Allocation::class);
+    }
+
     public function vulnerabilityFlags(): BelongsToMany
     {
         return $this->belongsToMany(VulnerabilityFlag::class);
