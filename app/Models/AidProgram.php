@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\HouseholdStatus;
+use App\Enums\ProgramStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -22,7 +25,7 @@ class AidProgram extends Model
     ];
 
     protected $attributes = [
-        'status' => 'draft',
+        'status' => ProgramStatus::Draft->value,
     ];
 
     protected function casts(): array
@@ -30,6 +33,7 @@ class AidProgram extends Model
         return [
             'starts_on' => 'date',
             'ends_on' => 'date',
+            'status' => ProgramStatus::class,
         ];
     }
 
@@ -56,5 +60,24 @@ class AidProgram extends Model
     public function allocations(): HasManyThrough
     {
         return $this->hasManyThrough(Allocation::class, DistributionRound::class);
+    }
+
+    /**
+     * Households that meet this program's eligibility rules. An empty rule
+     * (no minimum size, no target areas, no required flags) means no restriction.
+     */
+    public function eligibleHouseholds(): Builder
+    {
+        $areaIds = $this->targetAreas()->pluck('areas.id');
+        $flagIds = $this->requiredFlags()->pluck('vulnerability_flags.id');
+
+        return Household::query()
+            ->where('status', HouseholdStatus::Eligible)
+            ->when($this->min_family_size, fn (Builder $query, int $min) => $query->where('family_size', '>=', $min))
+            ->when($areaIds->isNotEmpty(), fn (Builder $query) => $query->whereIn('area_id', $areaIds))
+            ->when($flagIds->isNotEmpty(), fn (Builder $query) => $query->whereHas(
+                'vulnerabilityFlags',
+                fn (Builder $flags) => $flags->whereIn('vulnerability_flags.id', $flagIds),
+            ));
     }
 }

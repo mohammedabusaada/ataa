@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RoundStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,13 +17,14 @@ class DistributionRound extends Model
     ];
 
     protected $attributes = [
-        'status' => 'planned',
+        'status' => RoundStatus::Planned->value,
     ];
 
     protected function casts(): array
     {
         return [
             'scheduled_on' => 'date',
+            'status' => RoundStatus::class,
         ];
     }
 

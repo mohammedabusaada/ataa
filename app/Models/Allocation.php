@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AllocationStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,13 +15,14 @@ class Allocation extends Model
     ];
 
     protected $attributes = [
-        'status' => 'scheduled',
+        'status' => AllocationStatus::Scheduled->value,
     ];
 
     protected function casts(): array
     {
         return [
             'collected_at' => 'datetime',
+            'status' => AllocationStatus::class,
         ];
     }
 

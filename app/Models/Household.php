@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\Gender;
+use App\Enums\HouseholdStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Household extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'national_id',
@@ -25,8 +28,17 @@ class Household extends Model
     ];
 
     protected $attributes = [
-        'status' => 'registered',
+        'status' => HouseholdStatus::Registered->value,
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'head_gender' => Gender::class,
+            'head_birth_date' => 'date',
+            'status' => HouseholdStatus::class,
+        ];
+    }
 
     public function area(): BelongsTo
     {

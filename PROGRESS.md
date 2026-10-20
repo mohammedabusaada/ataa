@@ -20,6 +20,15 @@ Ataa is an aid distribution management system for NGOs and charities: household 
   - composite primary keys on all pivot tables
 - Delete rules: `restrict` for anything that carries history, `cascade` for labels and attachments (pivots, documents), `nullOnDelete` for `audit_logs.user_id`.
 
+### Day 2: Authentication, roles, authorization and demo data
+
+- Laravel Breeze (Blade) for login, registration and profile; Pest test suite. Tests run against a separate `ataa_testing` database (set in `phpunit.xml`).
+- `users` gained `role`, `locale` and `is_active`. The `Role` backed enum is cast on the model; the default role is `auditor` (least privilege) and `role` is not mass assignable.
+- Backed enums for every status column (`HouseholdStatus`, `ProgramStatus`, `RoundStatus`, `AllocationStatus`) and `Gender`, cast on the models.
+- `HouseholdPolicy`: inactive users are denied everything, admins are allowed everything (`before()`), field workers create, update and verify, everyone active can view.
+- `AidProgram::eligibleHouseholds()` turns the program's eligibility rules into one query.
+- Factories and seeders: real Gaza governorates and areas, staff accounts for every role (`admin@ataa.test` … password `password`), 150 households with Arabic names, consistent vulnerability flags and status history, and three programs with rounds, pickups and stock. `php artisan migrate:fresh --seed` rebuilds everything.
+
 ## Learned
 
 - A migration is version control for the schema: `up()` applies, `down()` reverts, and filename order matters for foreign keys.
@@ -34,6 +43,11 @@ Ataa is an aid distribution management system for NGOs and charities: household 
 - A database default is not seen by the in-memory model after `save()`; `$attributes` sets it on the model too.
 - `casts()` converts columns to PHP types (dates to Carbon, JSON to arrays).
 - Linux file systems are case-sensitive: class names must match file names exactly.
+- Middleware runs before the controller; `auth` redirects guests to the login page (authentication). Policies decide what a logged-in user may do (authorization).
+- Backed enums: `Enum::class` is the type (for casts), `Enum::Case` is a value (for comparisons), `Enum::Case->value` is the stored string (for `$attributes`). An invalid value throws a `ValueError`.
+- In a policy, `before()` returning `true` or `false` decides immediately; `null` falls through to the ability method.
+- Tests with `RefreshDatabase` wipe their database, so `phpunit.xml` must point them at a separate one.
+- Seeders run with mass assignment protection turned off, so they can set system columns directly.
 
 ## To revisit
 
@@ -43,4 +57,4 @@ Ataa is an aid distribution management system for NGOs and charities: household 
 
 ## Next step
 
-**Day 2:** Breeze authentication, user roles as a PHP backed enum (`role`, `locale`, `is_active` on `users`), enum casts for statuses, Policies, then factories and seeders with realistic demo data (`migrate:fresh --seed`).
+**Day 3:** Households CRUD: resource controller, Form Requests with validation, vulnerability checkboxes with `sync()`, ID document uploads with `Storage`, and the verification workflow with status history. Staff accounts will be created by the admin instead of public registration.
